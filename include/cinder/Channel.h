@@ -128,7 +128,7 @@ class ChannelT {
 			Area clippedArea( area.getClipBy( channelT.getBounds() ) );
 			mWidth = clippedArea.getWidth();
 			mHeight = clippedArea.getHeight();
-			mLinePtr = reinterpret_cast<uint8_t*>( channelT.getData( clippedArea.getUL() ) );
+			mStartPtr = mLinePtr = reinterpret_cast<uint8_t*>( channelT.getData( clippedArea.getUL() ) );
 			mPtr = reinterpret_cast<T*>( mLinePtr );
 			mStartX = mX = clippedArea.getX1();
 			mStartY = mY = clippedArea.getY1();			
@@ -155,6 +155,21 @@ class ChannelT {
 		//! Returns the coordinate of the pixel the Iter currently points to		
 		Vec2i			getPos() const { return Vec2i( mX, mY ); }
 
+		//! Points the Iter to the end of the current row
+		void lastPixel() {
+			mX = mEndX;
+			// in order to be at the right place after an initial call to pixel(-1), we need to be at the first pixel of the next line
+			mPtr = reinterpret_cast<T*>( mLinePtr ) + mRowInc;
+		}
+
+		//! Points the Iter to the end of the Channel
+		void lastLine() {
+			mY = mEndY;
+			// in order to be at the right place after an initial call to line(-1), we need to be at the first line outside the clippedArea
+			mLinePtr = mStartPtr + mHeight * mRowInc;
+			mPtr = reinterpret_cast<T*>( mLinePtr );		
+		}
+
 		//! Increments which pixel of the current row the Iter points to, and returns \c false when no pixels remain in the current row.
 		bool pixel( int32_t xOff = 1 ) {
 			mX += xOff;
@@ -180,7 +195,7 @@ class ChannelT {
 
 		/// \cond
 		uint8_t				mInc;
-		uint8_t				*mLinePtr;
+		uint8_t				*mLinePtr, *mStartPtr;
 		T					*mPtr;
 		int32_t				mRowInc, mWidth, mHeight;
 		int32_t				mX, mY, mStartX, mStartY, mEndX, mEndY;
@@ -196,7 +211,7 @@ class ChannelT {
 			Area clippedArea( area.getClipBy( channelT.getBounds() ) );
 			mWidth = clippedArea.getWidth();
 			mHeight = clippedArea.getHeight();
-			mLinePtr = reinterpret_cast<const uint8_t*>( channelT.getData( clippedArea.getUL() ) );
+			mStartPtr = mLinePtr = reinterpret_cast<const uint8_t*>( channelT.getData( clippedArea.getUL() ) );
 			mPtr = reinterpret_cast<const T*>( mLinePtr );
 			mStartX = mX = clippedArea.getX1();
 			mStartY = mY = clippedArea.getY1();			
@@ -223,22 +238,37 @@ class ChannelT {
 		//! Returns the coordinate of the pixel the Iter currently points to		
 		Vec2i			getPos() const { return Vec2i( mX, mY ); }
 
+		//! Points the Iter to the end of the current row
+		void lastPixel() {
+			mX = mEndX;
+			// in order to be at the right place after an initial call to pixel(-1), we need to be at the first pixel of the next line
+			mPtr = reinterpret_cast<const T*>( mLinePtr ) + mRowInc;
+		}
+
+		//! Points the Iter to the end of the Channel
+		void lastLine() {
+			mY = mEndY;
+			// in order to be at the right place after an initial call to line(-1), we need to be at the first line outside the clippedArea
+			mLinePtr = mStartPtr + mHeight * mRowInc;
+			mPtr = reinterpret_cast<const T*>( mLinePtr );		
+		}
+
 		//! Increments which pixel of the current row the Iter points to, and returns \c false when no pixels remain in the current row.
-		bool pixel() {
-			++mX;
-			mPtr += mInc;
-			return mX < mEndX;
+		bool pixel( int32_t xOff = 1 ) {
+			mX += xOff;
+			mPtr += xOff * mInc;
+			return ( mX >= mStartX ) && ( mX < mEndX );
 		}
 
 		//! Increments which row the Iter points to, and returns \c false when no rows remain in the Channel.		
-		bool line() {
-			++mY;
-			mLinePtr += mRowInc;
+		bool line( int32_t yOff = 1 ) {
+			mY += yOff;
+			mLinePtr += yOff * mRowInc;
 			mPtr = reinterpret_cast<const T*>( mLinePtr );
 			// in order to be at the right place after an initial call to pixel(), we need to back up one pixel
 			mPtr -= mInc;
 			mX = mStartX - 1;
-			return mY < mEndY;
+			return ( mY >= mStartX ) && ( mY < mEndY );
 		}
 
 		//! Returns the width of the Area the Iter iterates		
@@ -248,7 +278,7 @@ class ChannelT {
 
 		/// \cond
 		uint8_t				mInc;
-		const uint8_t		*mLinePtr;
+		const uint8_t		*mLinePtr, *mStartPtr;
 		const T				*mPtr;
 		int32_t				mRowInc, mWidth, mHeight;
 		int32_t				mX, mY, mStartX, mStartY, mEndX, mEndY;

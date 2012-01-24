@@ -429,6 +429,34 @@ fs::path App::getSaveFilePath( const fs::path &initialPath, vector<string> exten
 #endif
 }
 
+int App::showMessageBox( const std::string &message, const std::string &title )
+{
+#if defined( CINDER_MAC )
+    bool wasFullScreen = isFullScreen();
+	setFullScreen( false );
+
+	NSAlert *cinderAlert = [[NSAlert alloc] init];
+	[cinderAlert addButtonWithTitle: @"OK"];
+	[cinderAlert setMessageText: [NSString stringWithUTF8String:title.c_str()] ];
+	[cinderAlert setInformativeText: [NSString stringWithUTF8String:message.c_str()] ];
+	[cinderAlert setAlertStyle: NSWarningAlertStyle];
+    
+	int resultCode = [cinderAlert runModal];
+    [cinderAlert release];
+    
+	setFullScreen( wasFullScreen );
+	restoreWindowContext();
+    
+	return resultCode;
+
+#elif defined( CINDER_MSW )
+	return AppImplMsw::showMessageBox( message, title );
+#else
+	return 0;
+#endif
+}
+
+
 std::ostream& App::console()
 {
 #if defined( CINDER_COCOA )

@@ -297,4 +297,9 @@ fs::path AppImplMsw::getSaveFilePath( const fs::path &initialPath, vector<string
 	return result;
 }
 
+int AppImplMsw::showMessageBox( const std::string &message, const std::string &title = "" )
+{
+    return MessageBox(NULL, (LPCWSTR)( toUtf16( message ).c_str() ) , (LPCWSTR)( toUtf16( title ).c_str() ), MB_OK );
+}
+
 } } // namespace cinder::app

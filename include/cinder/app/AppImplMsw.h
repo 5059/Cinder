@@ -81,6 +81,8 @@ class AppImplMsw {
 	static fs::path		getOpenFilePath( const fs::path &initialPath, std::vector<std::string> extensions );
 	static fs::path		getSaveFilePath( const fs::path &initialPath, std::vector<std::string> extensions );
 	static fs::path		getFolderPath( const fs::path &initialPath );
+
+	static int showMessageBox( const std::string &message, const std::string &title );
 	
  protected:
 	class App	*mApp;

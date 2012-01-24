@@ -311,6 +311,9 @@ class App {
 		\return the selected file path or an empty string if the user cancelled. **/
 	fs::path		getSaveFilePath( const fs::path &initialPath = "", std::vector<std::string> extensions = std::vector<std::string>() );
 
+	//! Presents the user with a modal dialog and returns the option the user chose.
+	int				showMessageBox( const std::string &message, const std::string &title );
+
 	//! Returns a reference to an output console, which is an alias to std::cout on the mac, and a wrapper around OutputDebugString on MSW
 	std::ostream&	console();
 	

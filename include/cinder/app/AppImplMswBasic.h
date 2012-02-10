@@ -42,14 +42,15 @@ class AppImplMswBasic : public AppImplMsw {
 	class AppBasic*		getApp() { return mApp; }
 	
 	void	quit() { mShouldQuit = true; }
-	
+
+	void	setWindowPos( const Vec2i &aWindowPos );	
 	void	setWindowWidth( int aWindowWidth );
 	void	setWindowHeight( int aWindowHeight );
 	void	setWindowSize( int aWindowWidth, int aWindowHeight );
 	float	setFrameRate( float aFrameRate );
 	void	toggleFullScreen();
-
-	void	privateSetWindowOffset__( const Vec2i &aWindowOffset );
+	void	setBorderless( bool borderless );
+	void	setAlwaysOnTop( bool alwaysOnTop );
 	
 	std::string getAppPath() const;
 	
